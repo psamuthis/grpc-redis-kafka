@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	conn, err := grpc.NewClient("localhost:50051",
+	conn, err := grpc.NewClient("api:50051",
 		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
@@ -20,7 +20,6 @@ func main() {
 
 	client := pb.NewStationClient(conn)
 
-	// Give it 10 seconds instead of 1
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
