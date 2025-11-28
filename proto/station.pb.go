@@ -69,7 +69,7 @@ type NearStationRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	CarLatitude   float64                `protobuf:"fixed64,1,opt,name=car_latitude,json=carLatitude,proto3" json:"car_latitude,omitempty"`
 	CarLongitude  float64                `protobuf:"fixed64,2,opt,name=car_longitude,json=carLongitude,proto3" json:"car_longitude,omitempty"`
-	SearchRadius  int64                  `protobuf:"varint,3,opt,name=search_radius,json=searchRadius,proto3" json:"search_radius,omitempty"`
+	SearchRadius  float64                `protobuf:"fixed64,3,opt,name=search_radius,json=searchRadius,proto3" json:"search_radius,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -118,7 +118,7 @@ func (x *NearStationRequest) GetCarLongitude() float64 {
 	return 0
 }
 
-func (x *NearStationRequest) GetSearchRadius() int64 {
+func (x *NearStationRequest) GetSearchRadius() float64 {
 	if x != nil {
 		return x.SearchRadius
 	}
@@ -237,6 +237,126 @@ func (x *StationReply) GetStationLongitude() float64 {
 	return 0
 }
 
+type NearStationReply struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Name             string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Distance         float32                `protobuf:"fixed32,2,opt,name=distance,proto3" json:"distance,omitempty"`
+	Stock            int64                  `protobuf:"varint,3,opt,name=stock,proto3" json:"stock,omitempty"`
+	StationLatitude  float64                `protobuf:"fixed64,4,opt,name=station_latitude,json=stationLatitude,proto3" json:"station_latitude,omitempty"`
+	StationLongitude float64                `protobuf:"fixed64,5,opt,name=station_longitude,json=stationLongitude,proto3" json:"station_longitude,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *NearStationReply) Reset() {
+	*x = NearStationReply{}
+	mi := &file_proto_station_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NearStationReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NearStationReply) ProtoMessage() {}
+
+func (x *NearStationReply) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_station_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NearStationReply.ProtoReflect.Descriptor instead.
+func (*NearStationReply) Descriptor() ([]byte, []int) {
+	return file_proto_station_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *NearStationReply) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *NearStationReply) GetDistance() float32 {
+	if x != nil {
+		return x.Distance
+	}
+	return 0
+}
+
+func (x *NearStationReply) GetStock() int64 {
+	if x != nil {
+		return x.Stock
+	}
+	return 0
+}
+
+func (x *NearStationReply) GetStationLatitude() float64 {
+	if x != nil {
+		return x.StationLatitude
+	}
+	return 0
+}
+
+func (x *NearStationReply) GetStationLongitude() float64 {
+	if x != nil {
+		return x.StationLongitude
+	}
+	return 0
+}
+
+type NearStationResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Stations      []*NearStationReply    `protobuf:"bytes,1,rep,name=stations,proto3" json:"stations,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NearStationResponse) Reset() {
+	*x = NearStationResponse{}
+	mi := &file_proto_station_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NearStationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NearStationResponse) ProtoMessage() {}
+
+func (x *NearStationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_station_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NearStationResponse.ProtoReflect.Descriptor instead.
+func (*NearStationResponse) Descriptor() ([]byte, []int) {
+	return file_proto_station_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *NearStationResponse) GetStations() []*NearStationReply {
+	if x != nil {
+		return x.Stations
+	}
+	return nil
+}
+
 type UpdateStationReply struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Updated       bool                   `protobuf:"varint,1,opt,name=updated,proto3" json:"updated,omitempty"`
@@ -246,7 +366,7 @@ type UpdateStationReply struct {
 
 func (x *UpdateStationReply) Reset() {
 	*x = UpdateStationReply{}
-	mi := &file_proto_station_proto_msgTypes[4]
+	mi := &file_proto_station_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -258,7 +378,7 @@ func (x *UpdateStationReply) String() string {
 func (*UpdateStationReply) ProtoMessage() {}
 
 func (x *UpdateStationReply) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_station_proto_msgTypes[4]
+	mi := &file_proto_station_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -271,7 +391,7 @@ func (x *UpdateStationReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateStationReply.ProtoReflect.Descriptor instead.
 func (*UpdateStationReply) Descriptor() ([]byte, []int) {
-	return file_proto_station_proto_rawDescGZIP(), []int{4}
+	return file_proto_station_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *UpdateStationReply) GetUpdated() bool {
@@ -291,7 +411,7 @@ const file_proto_station_proto_rawDesc = "" +
 	"\x12NearStationRequest\x12!\n" +
 	"\fcar_latitude\x18\x01 \x01(\x01R\vcarLatitude\x12#\n" +
 	"\rcar_longitude\x18\x02 \x01(\x01R\fcarLongitude\x12#\n" +
-	"\rsearch_radius\x18\x03 \x01(\x03R\fsearchRadius\"X\n" +
+	"\rsearch_radius\x18\x03 \x01(\x01R\fsearchRadius\"X\n" +
 	"\x14UpdateStationRequest\x12!\n" +
 	"\fstation_name\x18\x01 \x01(\tR\vstationName\x12\x1d\n" +
 	"\n" +
@@ -299,12 +419,20 @@ const file_proto_station_proto_rawDesc = "" +
 	"\fStationReply\x12\x14\n" +
 	"\x05stock\x18\x01 \x01(\x03R\x05stock\x12)\n" +
 	"\x10station_latitude\x18\x02 \x01(\x01R\x0fstationLatitude\x12+\n" +
-	"\x11station_longitude\x18\x03 \x01(\x01R\x10stationLongitude\".\n" +
+	"\x11station_longitude\x18\x03 \x01(\x01R\x10stationLongitude\"\xb0\x01\n" +
+	"\x10NearStationReply\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
+	"\bdistance\x18\x02 \x01(\x02R\bdistance\x12\x14\n" +
+	"\x05stock\x18\x03 \x01(\x03R\x05stock\x12)\n" +
+	"\x10station_latitude\x18\x04 \x01(\x01R\x0fstationLatitude\x12+\n" +
+	"\x11station_longitude\x18\x05 \x01(\x01R\x10stationLongitude\"L\n" +
+	"\x13NearStationResponse\x125\n" +
+	"\bstations\x18\x01 \x03(\v2\x19.station.NearStationReplyR\bstations\".\n" +
 	"\x12UpdateStationReply\x12\x18\n" +
-	"\aupdated\x18\x01 \x01(\bR\aupdated2\xdc\x01\n" +
+	"\aupdated\x18\x01 \x01(\bR\aupdated2\xea\x01\n" +
 	"\aStation\x12A\n" +
-	"\vPollStation\x12\x1b.station.PollStationRequest\x1a\x15.station.StationReply\x12A\n" +
-	"\vFindNearest\x12\x1b.station.NearStationRequest\x1a\x15.station.StationReply\x12K\n" +
+	"\vPollStation\x12\x1b.station.PollStationRequest\x1a\x15.station.StationReply\x12O\n" +
+	"\x12FindNearestStation\x12\x1b.station.NearStationRequest\x1a\x1c.station.NearStationResponse\x12K\n" +
 	"\rUpdateStation\x12\x1d.station.UpdateStationRequest\x1a\x1b.station.UpdateStationReplyB)Z'github.com/psamuthis/grpc-station/protob\x06proto3"
 
 var (
@@ -319,26 +447,29 @@ func file_proto_station_proto_rawDescGZIP() []byte {
 	return file_proto_station_proto_rawDescData
 }
 
-var file_proto_station_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_proto_station_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_proto_station_proto_goTypes = []any{
 	(*PollStationRequest)(nil),   // 0: station.PollStationRequest
 	(*NearStationRequest)(nil),   // 1: station.NearStationRequest
 	(*UpdateStationRequest)(nil), // 2: station.UpdateStationRequest
 	(*StationReply)(nil),         // 3: station.StationReply
-	(*UpdateStationReply)(nil),   // 4: station.UpdateStationReply
+	(*NearStationReply)(nil),     // 4: station.NearStationReply
+	(*NearStationResponse)(nil),  // 5: station.NearStationResponse
+	(*UpdateStationReply)(nil),   // 6: station.UpdateStationReply
 }
 var file_proto_station_proto_depIdxs = []int32{
-	0, // 0: station.Station.PollStation:input_type -> station.PollStationRequest
-	1, // 1: station.Station.FindNearest:input_type -> station.NearStationRequest
-	2, // 2: station.Station.UpdateStation:input_type -> station.UpdateStationRequest
-	3, // 3: station.Station.PollStation:output_type -> station.StationReply
-	3, // 4: station.Station.FindNearest:output_type -> station.StationReply
-	4, // 5: station.Station.UpdateStation:output_type -> station.UpdateStationReply
-	3, // [3:6] is the sub-list for method output_type
-	0, // [0:3] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	4, // 0: station.NearStationResponse.stations:type_name -> station.NearStationReply
+	0, // 1: station.Station.PollStation:input_type -> station.PollStationRequest
+	1, // 2: station.Station.FindNearestStation:input_type -> station.NearStationRequest
+	2, // 3: station.Station.UpdateStation:input_type -> station.UpdateStationRequest
+	3, // 4: station.Station.PollStation:output_type -> station.StationReply
+	5, // 5: station.Station.FindNearestStation:output_type -> station.NearStationResponse
+	6, // 6: station.Station.UpdateStation:output_type -> station.UpdateStationReply
+	4, // [4:7] is the sub-list for method output_type
+	1, // [1:4] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_proto_station_proto_init() }
@@ -352,7 +483,7 @@ func file_proto_station_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_station_proto_rawDesc), len(file_proto_station_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

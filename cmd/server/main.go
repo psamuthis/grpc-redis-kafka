@@ -1,3 +1,4 @@
+// cmd/server/main.go
 package main
 
 import (
@@ -8,6 +9,7 @@ import (
 	"strconv"
 
 	pb "github.com/psamuthis/grpc-station/proto"
+	"github.com/psamuthis/grpc-station/cmd/server/seed"
 	"github.com/redis/go-redis/v9"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -17,15 +19,14 @@ import (
 var rdb *redis.Client
 
 func init() {
-	rdb = redis.NewClient(&redis.Options{
-		Addr:os.Getenv("REDIS_ADDR"),
-		Password: "",
-		DB: 0,
-	})
+	addr := os.Getenv("REDIS_ADDR")
+	if addr == "" {
+		addr = "redis:6379"
+	}
+	rdb = redis.NewClient(&redis.Options{Addr: addr})
 
-	ctx := context.Background()
-	if _, err := rdb.Ping(ctx).Result(); err != nil {
-		log.Fatalf("Failed to connect to Redis at startup: %v", err)
+	if _, err := rdb.Ping(context.Background()).Result(); err != nil {
+		log.Fatalf("Failed to connect to Redis: %v", err)
 	}
 	log.Println("Connected to Redis at startup")
 }
@@ -34,52 +35,79 @@ type stationServer struct {
 	pb.UnimplementedStationServer
 }
 
+// ────────────────────── PollStation ──────────────────────
 func (s *stationServer) PollStation(ctx context.Context, req *pb.PollStationRequest) (*pb.StationReply, error) {
-	station_name := req.GetName()
-	if station_name == "" {
-		return nil, status.Errorf(codes.InvalidArgument, "station name is required")
+	key := "station:" + req.GetName()
+	data, err := rdb.HGetAll(ctx, key).Result()
+	if err != nil || len(data) == 0 {
+		return &pb.StationReply{Stock: 0}, nil
 	}
 
-	result, err := rdb.HGetAll(ctx, station_name).Result()
-	if err != nil {
-		log.Printf("Redis HGetAll error %v", err)
-		return nil, status.Errorf(codes.Internal, "redis error")
-	}
-
-	if len(result) == 0 {
-		log.Printf("Station %s not found", station_name)
-		return &pb.StationReply{
-			Stock: 0,
-			StationLatitude: 0.0,
-			StationLongitude: 0.0,
-		}, nil
-	}
-
-	stock := int64(0)
-	if raw, ok := result["stock"]; ok {
-		stock, _ = strconv.ParseInt(raw, 10, 64)
-	}
-
-	latitude := float64(0)
-	if raw, ok := result["latitude"]; ok {
-		latitude, _ = strconv.ParseFloat(raw, 64)
-	}
-
-	longitude := float64(0)
-	if raw, ok := result["longitude"]; ok {
-		longitude, _ = strconv.ParseFloat(raw, 64)
-	}
-
-	log.Printf("Station %s -> stock=%d location=%f,%f", station_name, stock, latitude, longitude)
+	stock, _ := strconv.ParseInt(data["stock"], 10, 64)
+	lat, _ := strconv.ParseFloat(data["lat"], 64)
+	lon, _ := strconv.ParseFloat(data["lon"], 64)
 
 	return &pb.StationReply{
-		Stock: stock,
-		StationLatitude: latitude,
-		StationLongitude: longitude,
+		Stock:            stock,
+		StationLatitude:  lat,
+		StationLongitude: lon,
 	}, nil
 }
 
+// ────────────────────── FindNearestStation ──────────────────────
+func (s *stationServer) FindNearestStation(ctx context.Context, req *pb.NearStationRequest) (*pb.NearStationResponse, error) {
+	lat := req.GetCarLatitude()
+	lon := req.GetCarLongitude()
+	radius := req.GetSearchRadius()
+	if radius <= 0 {
+		radius = 50
+	}
+
+	// This works on ALL go-redis/v9 versions
+	results, err := rdb.GeoRadius(ctx, "stations", lon, lat, &redis.GeoRadiusQuery{
+		Radius:    radius,
+		Unit:      "km",
+		WithDist:  true,
+		WithCoord: true,
+		Count:     10,
+	}).Result()
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "geo search failed: %v", err)
+	}
+
+	var stations []*pb.NearStationReply
+	for _, g := range results {
+		id := g.Name
+		data, err := rdb.HGetAll(ctx, "station:"+id).Result()
+		if err != nil || len(data) == 0 {
+			continue
+		}
+
+		stock, _ := strconv.ParseInt(data["stock"], 10, 64)
+
+		stations = append(stations, &pb.NearStationReply{
+			Name:             data["name"],
+			Distance:         float32(g.Dist),   // Dist, not Distance
+			Stock:            stock,
+			StationLatitude:  g.Latitude,             // Lat, not Latitude
+			StationLongitude: g.Longitude,             // Lon, not Longitude
+		})
+	}
+
+	return &pb.NearStationResponse{Stations: stations}, nil
+}
+
+// ────────────────────── UpdateStation (optional) ──────────────────────
+func (s *stationServer) UpdateStation(ctx context.Context, req *pb.UpdateStationRequest) (*pb.UpdateStationReply, error) {
+	key := "station:" + req.GetStationName()
+	_, err := rdb.HIncrBy(ctx, key, "stock", req.GetStockIncr()).Result()
+	return &pb.UpdateStationReply{Updated: err == nil}, nil
+}
+
+// ────────────────────── main ──────────────────────
 func main() {
+	seed.SeedStations(rdb)
+
 	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
