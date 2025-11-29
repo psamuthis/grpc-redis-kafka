@@ -23,13 +23,14 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	log.Printf("Vehicle about to poll Downtown Hub station.")
 	resp, err := client.PollStation(ctx, &pb.PollStationRequest{Name: "Downtown Hub"})
 	if err != nil {
 		log.Fatalf("Poll failed: %v", err)
 	}
+	log.Printf("Polled succeeded stock: %d, location: %f,%f", resp.GetStock(), resp.GetStationLatitude(), resp.GetStationLongitude())
 
-	log.Printf("Success! Stock: %d, Location: %f,%f", resp.GetStock(), resp.GetStationLatitude(), resp.GetStationLongitude())
-
+	log.Printf("Vehicle looking for nearest station.")
 	near_stations_resp, err := client.FindNearestStation(ctx, &pb.NearStationRequest{
 		CarLatitude: 47.7062,
 		CarLongitude: -122.3421,

@@ -21,7 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	Station_PollStation_FullMethodName        = "/station.Station/PollStation"
 	Station_FindNearestStation_FullMethodName = "/station.Station/FindNearestStation"
-	Station_UpdateStation_FullMethodName      = "/station.Station/UpdateStation"
+	Station_UpdateStationStock_FullMethodName = "/station.Station/UpdateStationStock"
 )
 
 // StationClient is the client API for Station service.
@@ -30,7 +30,7 @@ const (
 type StationClient interface {
 	PollStation(ctx context.Context, in *PollStationRequest, opts ...grpc.CallOption) (*StationReply, error)
 	FindNearestStation(ctx context.Context, in *NearStationRequest, opts ...grpc.CallOption) (*NearStationResponse, error)
-	UpdateStation(ctx context.Context, in *UpdateStationRequest, opts ...grpc.CallOption) (*UpdateStationReply, error)
+	UpdateStationStock(ctx context.Context, in *UpdateStationRequest, opts ...grpc.CallOption) (*UpdateStationReply, error)
 }
 
 type stationClient struct {
@@ -61,10 +61,10 @@ func (c *stationClient) FindNearestStation(ctx context.Context, in *NearStationR
 	return out, nil
 }
 
-func (c *stationClient) UpdateStation(ctx context.Context, in *UpdateStationRequest, opts ...grpc.CallOption) (*UpdateStationReply, error) {
+func (c *stationClient) UpdateStationStock(ctx context.Context, in *UpdateStationRequest, opts ...grpc.CallOption) (*UpdateStationReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UpdateStationReply)
-	err := c.cc.Invoke(ctx, Station_UpdateStation_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Station_UpdateStationStock_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func (c *stationClient) UpdateStation(ctx context.Context, in *UpdateStationRequ
 type StationServer interface {
 	PollStation(context.Context, *PollStationRequest) (*StationReply, error)
 	FindNearestStation(context.Context, *NearStationRequest) (*NearStationResponse, error)
-	UpdateStation(context.Context, *UpdateStationRequest) (*UpdateStationReply, error)
+	UpdateStationStock(context.Context, *UpdateStationRequest) (*UpdateStationReply, error)
 	mustEmbedUnimplementedStationServer()
 }
 
@@ -94,8 +94,8 @@ func (UnimplementedStationServer) PollStation(context.Context, *PollStationReque
 func (UnimplementedStationServer) FindNearestStation(context.Context, *NearStationRequest) (*NearStationResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method FindNearestStation not implemented")
 }
-func (UnimplementedStationServer) UpdateStation(context.Context, *UpdateStationRequest) (*UpdateStationReply, error) {
-	return nil, status.Error(codes.Unimplemented, "method UpdateStation not implemented")
+func (UnimplementedStationServer) UpdateStationStock(context.Context, *UpdateStationRequest) (*UpdateStationReply, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateStationStock not implemented")
 }
 func (UnimplementedStationServer) mustEmbedUnimplementedStationServer() {}
 func (UnimplementedStationServer) testEmbeddedByValue()                 {}
@@ -154,20 +154,20 @@ func _Station_FindNearestStation_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Station_UpdateStation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Station_UpdateStationStock_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateStationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(StationServer).UpdateStation(ctx, in)
+		return srv.(StationServer).UpdateStationStock(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Station_UpdateStation_FullMethodName,
+		FullMethod: Station_UpdateStationStock_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(StationServer).UpdateStation(ctx, req.(*UpdateStationRequest))
+		return srv.(StationServer).UpdateStationStock(ctx, req.(*UpdateStationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -188,8 +188,8 @@ var Station_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Station_FindNearestStation_Handler,
 		},
 		{
-			MethodName: "UpdateStation",
-			Handler:    _Station_UpdateStation_Handler,
+			MethodName: "UpdateStationStock",
+			Handler:    _Station_UpdateStationStock_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

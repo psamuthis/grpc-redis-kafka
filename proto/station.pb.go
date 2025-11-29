@@ -126,11 +126,11 @@ func (x *NearStationRequest) GetSearchRadius() float64 {
 }
 
 type UpdateStationRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	StationName   string                 `protobuf:"bytes,1,opt,name=station_name,json=stationName,proto3" json:"station_name,omitempty"`
-	StockIncr     int64                  `protobuf:"varint,2,opt,name=stock_incr,json=stockIncr,proto3" json:"stock_incr,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	StationName    string                 `protobuf:"bytes,1,opt,name=station_name,json=stationName,proto3" json:"station_name,omitempty"`
+	StockIncrement int64                  `protobuf:"varint,2,opt,name=stock_increment,json=stockIncrement,proto3" json:"stock_increment,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *UpdateStationRequest) Reset() {
@@ -170,9 +170,9 @@ func (x *UpdateStationRequest) GetStationName() string {
 	return ""
 }
 
-func (x *UpdateStationRequest) GetStockIncr() int64 {
+func (x *UpdateStationRequest) GetStockIncrement() int64 {
 	if x != nil {
-		return x.StockIncr
+		return x.StockIncrement
 	}
 	return 0
 }
@@ -411,11 +411,10 @@ const file_proto_station_proto_rawDesc = "" +
 	"\x12NearStationRequest\x12!\n" +
 	"\fcar_latitude\x18\x01 \x01(\x01R\vcarLatitude\x12#\n" +
 	"\rcar_longitude\x18\x02 \x01(\x01R\fcarLongitude\x12#\n" +
-	"\rsearch_radius\x18\x03 \x01(\x01R\fsearchRadius\"X\n" +
+	"\rsearch_radius\x18\x03 \x01(\x01R\fsearchRadius\"b\n" +
 	"\x14UpdateStationRequest\x12!\n" +
-	"\fstation_name\x18\x01 \x01(\tR\vstationName\x12\x1d\n" +
-	"\n" +
-	"stock_incr\x18\x02 \x01(\x03R\tstockIncr\"|\n" +
+	"\fstation_name\x18\x01 \x01(\tR\vstationName\x12'\n" +
+	"\x0fstock_increment\x18\x02 \x01(\x03R\x0estockIncrement\"|\n" +
 	"\fStationReply\x12\x14\n" +
 	"\x05stock\x18\x01 \x01(\x03R\x05stock\x12)\n" +
 	"\x10station_latitude\x18\x02 \x01(\x01R\x0fstationLatitude\x12+\n" +
@@ -429,11 +428,11 @@ const file_proto_station_proto_rawDesc = "" +
 	"\x13NearStationResponse\x125\n" +
 	"\bstations\x18\x01 \x03(\v2\x19.station.NearStationReplyR\bstations\".\n" +
 	"\x12UpdateStationReply\x12\x18\n" +
-	"\aupdated\x18\x01 \x01(\bR\aupdated2\xea\x01\n" +
+	"\aupdated\x18\x01 \x01(\bR\aupdated2\xef\x01\n" +
 	"\aStation\x12A\n" +
 	"\vPollStation\x12\x1b.station.PollStationRequest\x1a\x15.station.StationReply\x12O\n" +
-	"\x12FindNearestStation\x12\x1b.station.NearStationRequest\x1a\x1c.station.NearStationResponse\x12K\n" +
-	"\rUpdateStation\x12\x1d.station.UpdateStationRequest\x1a\x1b.station.UpdateStationReplyB)Z'github.com/psamuthis/grpc-station/protob\x06proto3"
+	"\x12FindNearestStation\x12\x1b.station.NearStationRequest\x1a\x1c.station.NearStationResponse\x12P\n" +
+	"\x12UpdateStationStock\x12\x1d.station.UpdateStationRequest\x1a\x1b.station.UpdateStationReplyB)Z'github.com/psamuthis/grpc-station/protob\x06proto3"
 
 var (
 	file_proto_station_proto_rawDescOnce sync.Once
@@ -461,10 +460,10 @@ var file_proto_station_proto_depIdxs = []int32{
 	4, // 0: station.NearStationResponse.stations:type_name -> station.NearStationReply
 	0, // 1: station.Station.PollStation:input_type -> station.PollStationRequest
 	1, // 2: station.Station.FindNearestStation:input_type -> station.NearStationRequest
-	2, // 3: station.Station.UpdateStation:input_type -> station.UpdateStationRequest
+	2, // 3: station.Station.UpdateStationStock:input_type -> station.UpdateStationRequest
 	3, // 4: station.Station.PollStation:output_type -> station.StationReply
 	5, // 5: station.Station.FindNearestStation:output_type -> station.NearStationResponse
-	6, // 6: station.Station.UpdateStation:output_type -> station.UpdateStationReply
+	6, // 6: station.Station.UpdateStationStock:output_type -> station.UpdateStationReply
 	4, // [4:7] is the sub-list for method output_type
 	1, // [1:4] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name

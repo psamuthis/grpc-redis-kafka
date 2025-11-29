@@ -7,7 +7,7 @@ option go_package = "github.com/psamuthis/grpc-station/proto";
 service Station{
     rpc PollStation(PollStationRequest) returns (StationReply);
     rpc FindNearestStation(NearStationRequest) returns (NearStationResponse);
-    rpc UpdateStation(UpdateStationRequest) returns (UpdateStationReply);
+    rpc UpdateStationStock(UpdateStationRequest) returns (UpdateStationReply);
 }
 
 message PollStationRequest {
@@ -22,7 +22,7 @@ message NearStationRequest {
 
 message UpdateStationRequest {
     string station_name = 1;
-    int64 stock_incr = 2;
+    int64 stock_increment = 2;
 }
 
 message StationReply {

@@ -38,6 +38,7 @@ type stationServer struct {
 // ────────────────────── PollStation ──────────────────────
 func (s *stationServer) PollStation(ctx context.Context, req *pb.PollStationRequest) (*pb.StationReply, error) {
 	key := "station:" + req.GetName()
+	log.Printf("PollStation called key=%v", key)
 	data, err := rdb.HGetAll(ctx, key).Result()
 	if err != nil || len(data) == 0 {
 		return &pb.StationReply{Stock: 0}, nil
@@ -62,6 +63,7 @@ func (s *stationServer) FindNearestStation(ctx context.Context, req *pb.NearStat
 	if radius <= 0 {
 		radius = 50
 	}
+	log.Printf("FindNearestStation called. Vehicle location %f,%f search radius %f km", lat, lon, radius)
 
 	// This works on ALL go-redis/v9 versions
 	results, err := rdb.GeoRadius(ctx, "stations", lon, lat, &redis.GeoRadiusQuery{
@@ -98,9 +100,10 @@ func (s *stationServer) FindNearestStation(ctx context.Context, req *pb.NearStat
 }
 
 // ────────────────────── UpdateStation (optional) ──────────────────────
-func (s *stationServer) UpdateStation(ctx context.Context, req *pb.UpdateStationRequest) (*pb.UpdateStationReply, error) {
+func (s *stationServer) UpdateStationStock(ctx context.Context, req *pb.UpdateStationRequest) (*pb.UpdateStationReply, error) {
 	key := "station:" + req.GetStationName()
-	_, err := rdb.HIncrBy(ctx, key, "stock", req.GetStockIncr()).Result()
+	log.Printf("UpdateStationStock called. station %v stock_incr %d", req.GetStationName(), req.GetStockIncrement())
+	_, err := rdb.HIncrBy(ctx, key, "stock", req.GetStockIncrement()).Result()
 	return &pb.UpdateStationReply{Updated: err == nil}, nil
 }
 
