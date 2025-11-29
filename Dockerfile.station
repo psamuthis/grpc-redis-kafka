@@ -9,4 +9,4 @@ FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 COPY --from=builder /bin/station .
-CMD ["sh", "-c", "sleep 4 && ./station"]
+CMD ["./station"]

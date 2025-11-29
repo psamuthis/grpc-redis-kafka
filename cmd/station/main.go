@@ -11,6 +11,7 @@ import (
 )
 
 func main() {
+	time.Sleep(20 * time.Second)
 	conn, err := grpc.NewClient("api:50051",
 		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
