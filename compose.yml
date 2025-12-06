@@ -4,6 +4,8 @@ services:
     container_name: redis-gears-1
     ports:
       - "6379:6379"
+    networks:
+      - bbhv-network
     volumes:
       - redis-data:/data
 
@@ -23,6 +25,8 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
       CLUSTER_ID: 4L6g3nShT-eMCtK--X86sw
+    networks:
+      - bbhv-network
 
   api:
     container_name: grpc-api-1
@@ -32,12 +36,22 @@ services:
     ports:
       - "50051:50051"
     depends_on:
-      - redis
-      - kafka
+      redis:
+        condition: service_started
+      kafka: 
+        condition: service_started
     environment:
       - REDIS_ADDR=redis:6379
       - KAFKA_BROKERS=kafka:19092
     command: ["sh", "-c", "./server"]
+    networks:
+      - bbhv-network
+    healthcheck:  # ← ADD THIS for api too
+      test: ["CMD", "nc", "-z", "localhost", "50051"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
 
   #car:
     #container_name: vehicle-1
@@ -45,7 +59,10 @@ services:
       #context: .
       #dockerfile: Dockerfile.car
     #depends_on:
-      #- api
+      # api:
+        # condition: service_started 
+    #networks:
+      #- bbhv-network
 
   station:
     container_name: university-station
@@ -53,7 +70,52 @@ services:
       context: .
       dockerfile: Dockerfile.station
     depends_on:
-      - api
+      #api:
+        #condition: service_healthy
+      mqtt-grpc-bridge:
+        condition: service_healthy
+    networks:
+      - bbhv-network
+
+  emqx:
+    image: emqx:latest
+    ports:
+      - "1883:1883"  # MQTT
+      # - "8081:8081"  # Dashboard
+    networks:
+      - bbhv-network
+    healthcheck:  # ← ADD THIS
+      test: ["CMD", "/opt/emqx/bin/emqx_ctl", "status"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  mqtt-grpc-bridge:
+    container_name: mqtt-bridge
+    build: 
+      context: .
+      dockerfile: Dockerfile.mqtt-bridge
+    depends_on:
+      emqx:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    environment:
+      - MQTT_BROKER=tcp://emqx:1883
+      - GRPC_SERVER=api:50051
+    networks:
+      - bbhv-network
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "mqtt-bridge"]  # Check if process is running
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+networks:
+  bbhv-network:
+    driver: bridge
 
 volumes:
   redis-data:
