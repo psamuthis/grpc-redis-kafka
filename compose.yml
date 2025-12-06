@@ -53,16 +53,16 @@ services:
       retries: 3
       start_period: 30s
 
-  #car:
-    #container_name: vehicle-1
-    #build:
-      #context: .
-      #dockerfile: Dockerfile.car
-    #depends_on:
-      # api:
-        # condition: service_started 
-    #networks:
-      #- bbhv-network
+  car:
+    container_name: vehicle-1
+    build:
+      context: .
+      dockerfile: Dockerfile.car
+    depends_on:
+      mqtt-grpc-bridge:
+        condition: service_healthy
+    networks:
+      - bbhv-network
 
   station:
     container_name: university-station
@@ -70,9 +70,7 @@ services:
       context: .
       dockerfile: Dockerfile.station
     depends_on:
-      #api:
-        #condition: service_healthy
-      mqtt-grpc-bridge:
+      api:
         condition: service_healthy
     networks:
       - bbhv-network

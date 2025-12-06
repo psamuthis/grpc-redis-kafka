@@ -58,15 +58,12 @@ var (
 )
 
 func main() {
-	// Wait for services to be ready
-	time.Sleep(20 * time.Second)
-	
 	// Get client ID from env or use default
 	clientID := os.Getenv("CLIENT_ID")
 	if clientID == "" {
 		clientID = "vehicle-" + fmt.Sprintf("%d", time.Now().UnixNano())
 	}
-	
+
 	// Connect to EMQX
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker("tcp://emqx:1883")
@@ -74,24 +71,24 @@ func main() {
 	opts.SetDefaultPublishHandler(defaultMessageHandler)
 	opts.OnConnect = connectHandler
 	opts.OnConnectionLost = connectLostHandler
-	
+
 	client := mqtt.NewClient(opts)
-	
+
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		log.Fatalf("Failed to connect to EMQX: %v", token.Error())
 	}
 	defer client.Disconnect(250)
-	
+
 	log.Printf("Connected to EMQX broker as %s", clientID)
-	
+
 	// Subscribe to response topics
 	subscribeToResponses(client, clientID)
-	
+
 	// Make requests
 	makePollRequest(client, clientID, "Downtown Hub")
 	makeFindNearestRequest(client, clientID)
 	makeUpdateRequest(client, clientID, "Downtown Hub", 5)
-	
+
 	// Wait for responses
 	waitForResponses()
 }
@@ -103,7 +100,7 @@ func subscribeToResponses(client mqtt.Client, clientID string) {
 		"station/near/response/" + clientID:   nearResponseHandler,
 		"station/update/response/" + clientID: updateResponseHandler,
 	}
-	
+
 	for topic, handler := range responseTopics {
 		if token := client.Subscribe(topic, 1, handler); token.Wait() && token.Error() != nil {
 			log.Printf("Failed to subscribe to %s: %v", topic, token.Error())
@@ -115,20 +112,20 @@ func subscribeToResponses(client mqtt.Client, clientID string) {
 
 func makePollRequest(client mqtt.Client, clientID, stationName string) {
 	time.Sleep(1 * time.Second)
-	
+
 	log.Printf("Polling station: %s", stationName)
-	
+
 	request := PollRequest{Name: stationName}
 	payload, err := json.Marshal(request)
 	if err != nil {
 		log.Printf("Failed to marshal poll request: %v", err)
 		return
 	}
-	
+
 	topic := "station/poll/request/" + clientID
 	token := client.Publish(topic, 1, false, payload)
 	token.Wait()
-	
+
 	if token.Error() != nil {
 		log.Printf("Failed to publish poll request: %v", token.Error())
 	} else {
@@ -138,25 +135,25 @@ func makePollRequest(client mqtt.Client, clientID, stationName string) {
 
 func makeFindNearestRequest(client mqtt.Client, clientID string) {
 	time.Sleep(2 * time.Second)
-	
+
 	log.Printf("Looking for nearest station...")
-	
+
 	request := NearRequest{
 		CarLatitude:  47.7062,
 		CarLongitude: -122.3421,
 		SearchRadius: 200.3,
 	}
-	
+
 	payload, err := json.Marshal(request)
 	if err != nil {
 		log.Printf("Failed to marshal near request: %v", err)
 		return
 	}
-	
+
 	topic := "station/near/request/" + clientID
 	token := client.Publish(topic, 1, false, payload)
 	token.Wait()
-	
+
 	if token.Error() != nil {
 		log.Printf("Failed to publish near request: %v", token.Error())
 	} else {
@@ -166,24 +163,24 @@ func makeFindNearestRequest(client mqtt.Client, clientID string) {
 
 func makeUpdateRequest(client mqtt.Client, clientID, stationName string, increment int64) {
 	time.Sleep(3 * time.Second)
-	
+
 	log.Printf("Updating station %s stock by %d", stationName, increment)
-	
+
 	request := UpdateRequest{
 		StationName:    stationName,
 		StockIncrement: increment,
 	}
-	
+
 	payload, err := json.Marshal(request)
 	if err != nil {
 		log.Printf("Failed to marshal update request: %v", err)
 		return
 	}
-	
+
 	topic := "station/update/request/" + clientID
 	token := client.Publish(topic, 1, false, payload)
 	token.Wait()
-	
+
 	if token.Error() != nil {
 		log.Printf("Failed to publish update request: %v", token.Error())
 	} else {
@@ -204,8 +201,8 @@ func pollResponseHandler(client mqtt.Client, msg mqtt.Message) {
 		errorChan <- fmt.Sprintf("Failed to parse poll response: %v", err)
 		return
 	}
-	
-	log.Printf("Poll succeeded - Stock: %d, Location: %f,%f", 
+
+	log.Printf("Poll succeeded - Stock: %d, Location: %f,%f",
 		resp.Stock, resp.StationLatitude, resp.StationLongitude)
 	pollResponseChan <- resp
 }
@@ -222,10 +219,10 @@ func nearResponseHandler(client mqtt.Client, msg mqtt.Message) {
 		errorChan <- fmt.Sprintf("Failed to parse near response: %v", err)
 		return
 	}
-	
+
 	log.Printf("Found %d nearest stations:", len(resp.Stations))
 	for i, station := range resp.Stations {
-		log.Printf("  %d. %s (%.1f km away, stock: %d)", 
+		log.Printf("  %d. %s (%.1f km away, stock: %d)",
 			i+1, station.Name, station.Distance, station.Stock)
 	}
 	nearResponseChan <- resp
@@ -243,7 +240,7 @@ func updateResponseHandler(client mqtt.Client, msg mqtt.Message) {
 		errorChan <- fmt.Sprintf("Failed to parse update response: %v", err)
 		return
 	}
-	
+
 	if resp.Updated {
 		log.Printf("Station stock updated successfully")
 	} else {
@@ -267,7 +264,7 @@ func connectLostHandler(client mqtt.Client, err error) {
 func waitForResponses() {
 	timeout := time.After(30 * time.Second)
 	responsesReceived := 0
-	
+
 	for responsesReceived < 3 {
 		select {
 		case <-pollResponseChan:
@@ -283,6 +280,6 @@ func waitForResponses() {
 			return
 		}
 	}
-	
+
 	log.Println("All responses received successfully")
 }
