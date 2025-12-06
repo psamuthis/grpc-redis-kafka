@@ -23,3 +23,6 @@ Finally:
 ./cleanup.sh
 ```
 This stops the services and removes images, networks, volumes and so on...
+
+In case this doesn't work the logs are the following:
+![Services logs](./bbhv_arch_logs.png)
