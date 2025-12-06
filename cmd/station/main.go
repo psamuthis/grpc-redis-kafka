@@ -28,7 +28,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Stock query failed: %v", err)
 	}
-	log.Printf("University Campus currently holds %v cyliders of hydrogen.", station_data.GetStock())
+	log.Printf("University Campus currently holds %v cylinders of hydrogen.", station_data.GetStock())
 
 	log.Printf("Station about to sell 2 cylinders.")
 	resp, err := client.UpdateStationStock(ctx, &pb.UpdateStationRequest{StationName: "University Campus", StockIncrement: -2})
